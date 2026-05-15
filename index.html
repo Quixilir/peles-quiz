@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz – Castelul Peleș / Peleș Castle</title>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --lime: #faffbf;
+    --lime-dim: #e8f0a0;
+    --lime-faint: rgba(250,255,191,0.08);
+    --blue: #0f9ed5;
+    --blue-dim: #0b7da8;
+    --blue-faint: rgba(15,158,213,0.08);
+    --ink: #1a1308;
+    --muted: #8a7a50;
+    --border-lime: rgba(250,255,191,0.2);
+    --border-blue: rgba(15,158,213,0.3);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Crimson Text', Georgia, serif; background: var(--ink); color: var(--lime); min-height: 100vh; overflow-x: hidden; }
+
+  .bg-layer {
+    position: fixed; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 70% 50% at 50% -5%, rgba(15,158,213,0.09) 0%, transparent 65%),
+      radial-gradient(ellipse 50% 40% at 90% 100%, rgba(250,255,191,0.05) 0%, transparent 55%),
+      linear-gradient(175deg, #0e0b04 0%, #1a1308 45%, #0f0c06 100%);
+    pointer-events: none;
+  }
+  .bg-layer::before {
+    content: ''; position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='80' height='80' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+    background-size: 80px 80px; opacity: 0.6;
+  }
+  .bg-layer::after {
+    content: ''; position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cpath d='M60 10 Q90 10 90 40 Q90 70 60 80 Q30 70 30 40 Q30 10 60 10Z' fill='none' stroke='rgba(250,255,191,0.025)' stroke-width='1'/%3E%3C/svg%3E");
+    background-size: 120px 120px;
+  }
+
+  #confetti-canvas { position: fixed; inset: 0; z-index: 100; pointer-events: none; }
+
+  .wrap { position: relative; z-index: 1; max-width: 740px; margin: 0 auto; padding: 36px 20px 80px; }
+
+  /* HEADER */
+  .logo { text-align: center; margin-bottom: 44px; }
+  .heraldic { font-size: 2rem; line-height: 1; margin-bottom: 6px; filter: drop-shadow(0 0 12px rgba(15,158,213,0.4)); }
+  .logo h1 { font-family: 'Cinzel', serif; font-weight: 700; font-size: clamp(1.4rem, 3.8vw, 2.1rem); color: var(--lime); letter-spacing: 0.07em; text-transform: uppercase; text-shadow: 0 0 24px rgba(250,255,191,0.25); }
+  .logo p { color: var(--muted); font-family: 'Crimson Text', serif; font-style: italic; font-size: 0.95rem; letter-spacing: 0.08em; margin-top: 4px; }
+  .ornament { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 14px auto 0; }
+  .ornament-line { width: 70px; height: 1px; background: linear-gradient(90deg, transparent, var(--blue), transparent); }
+  .ornament-diamond { width: 8px; height: 8px; background: var(--blue); transform: rotate(45deg); box-shadow: 0 0 8px rgba(15,158,213,0.6); }
+
+  /* CARD */
+  .card {
+    background: rgba(15,10,4,0.7); border: 1px solid var(--border-lime); border-radius: 4px;
+    padding: 38px 36px; position: relative; backdrop-filter: blur(6px); animation: fadeUp 0.45s ease both;
+    box-shadow: inset 0 0 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(250,255,191,0.04), 0 4px 40px rgba(0,0,0,0.5);
+  }
+  .card::before, .card::after { content: '✦'; position: absolute; font-size: 0.7rem; color: var(--blue); opacity: 0.7; }
+  .card::before { top: 10px; left: 14px; }
+  .card::after  { bottom: 10px; right: 14px; }
+  @keyframes fadeUp { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
+
+  /* LANGUAGE SCREEN */
+  .lang-screen { text-align: center; }
+  .lang-screen h2 { font-family: 'Cinzel', serif; font-size: 1.3rem; color: var(--lime); margin-bottom: 6px; letter-spacing: 0.06em; }
+  .lang-sub { color: var(--muted); font-style: italic; font-size: 0.95rem; margin-bottom: 36px; }
+  .lang-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+  .btn-lang {
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    padding: 24px 40px; border-radius: 4px; border: 1px solid var(--border-lime);
+    background: var(--lime-faint); cursor: pointer; transition: all 0.2s;
+    font-family: 'Cinzel', serif; color: var(--lime); min-width: 155px;
+    text-align: center;
+  }
+  .btn-lang:hover { border-color: var(--blue); background: var(--blue-faint); box-shadow: 0 0 24px rgba(15,158,213,0.18); transform: translateY(-2px); }
+  .btn-lang .lang-flag { font-size: 2.2rem; }
+  .btn-lang .lang-name { font-size: 0.88rem; letter-spacing: 0.12em; text-transform: uppercase; }
+  .btn-lang .lang-native { font-size: 0.78rem; color: var(--muted); font-style: italic; font-family: 'Crimson Text', serif; letter-spacing: 0; text-transform: none; }
+
+  /* NAME SCREEN */
+  .name-screen h2 { font-family: 'Cinzel', serif; font-size: 1.45rem; color: var(--lime); margin-bottom: 10px; letter-spacing: 0.05em; }
+  .name-screen p { color: var(--muted); font-size: 1rem; font-style: italic; margin-bottom: 28px; line-height: 1.65; }
+  .input-wrap { position: relative; margin-bottom: 10px; }
+  .input-wrap input {
+    width: 100%; background: rgba(250,255,191,0.04); border: 1px solid var(--border-lime);
+    border-radius: 3px; padding: 13px 18px; font-family: 'Crimson Text', serif;
+    font-size: 1.05rem; color: var(--lime); outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s; letter-spacing: 0.02em;
+  }
+  .input-wrap input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-faint), inset 0 0 20px rgba(15,158,213,0.04); }
+  .input-wrap input::placeholder { color: var(--muted); font-style: italic; }
+  .name-error { color: #e08080; font-size: 0.88rem; font-style: italic; min-height: 20px; margin-bottom: 14px; padding-left: 4px; }
+
+  /* BUTTONS */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-family: 'Cinzel', serif; font-weight: 600; font-size: 0.82rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 13px 28px; border-radius: 3px; cursor: pointer; border: none; transition: all 0.2s; }
+  .btn-primary { background: linear-gradient(135deg, var(--blue-dim), var(--blue)); color: var(--lime); box-shadow: 0 0 20px rgba(15,158,213,0.25), inset 0 1px 0 rgba(255,255,255,0.1); }
+  .btn-primary:hover { filter: brightness(1.12); transform: translateY(-1px); box-shadow: 0 0 28px rgba(15,158,213,0.4); }
+  .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+  .btn-outline { background: transparent; border: 1px solid var(--border-blue); color: var(--blue); }
+  .btn-outline:hover { background: var(--blue-faint); border-color: var(--blue); }
+  .btn-full { width: 100%; }
+
+  /* PROGRESS */
+  .progress-bar { margin-bottom: 30px; }
+  .progress-meta { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--muted); font-family: 'Cinzel', serif; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
+  .progress-track { width: 100%; height: 3px; background: rgba(250,255,191,0.06); border-radius: 99px; overflow: hidden; border: 1px solid rgba(250,255,191,0.08); }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--blue-dim), var(--blue), rgba(250,255,191,0.8)); border-radius: 99px; transition: width 0.5s cubic-bezier(.4,0,.2,1); box-shadow: 0 0 8px rgba(15,158,213,0.5); }
+
+  /* QUESTION */
+  .question-num { font-family: 'Cinzel', serif; font-size: 0.72rem; color: var(--blue); text-transform: uppercase; letter-spacing: 0.16em; margin-bottom: 12px; }
+  .question-text { font-family: 'IM Fell English', Georgia, serif; font-size: clamp(1.1rem, 2.4vw, 1.3rem); line-height: 1.6; margin-bottom: 26px; color: var(--lime); }
+
+  /* OPTIONS */
+  .options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+  .option { display: flex; align-items: center; gap: 14px; padding: 13px 16px; border-radius: 3px; border: 1px solid rgba(250,255,191,0.12); background: rgba(250,255,191,0.02); cursor: pointer; transition: all 0.18s; user-select: none; }
+  .option:hover:not(.locked) { border-color: var(--blue); background: var(--blue-faint); box-shadow: 0 0 14px rgba(15,158,213,0.1); }
+  .option.selected { border-color: var(--blue); background: var(--blue-faint); }
+  .option.correct  { border-color: #5bbf8a; background: rgba(91,191,138,0.1); }
+  .option.wrong    { border-color: #d06060; background: rgba(208,96,96,0.09); }
+  .option.reveal-correct { border-color: #5bbf8a; background: rgba(91,191,138,0.08); }
+  .option.locked { cursor: default; }
+  .option-letter { width: 30px; height: 30px; flex-shrink: 0; border-radius: 2px; border: 1px solid rgba(250,255,191,0.18); display: flex; align-items: center; justify-content: center; font-family: 'Cinzel', serif; font-weight: 700; font-size: 0.75rem; color: var(--lime); transition: all 0.18s; }
+  .option.selected .option-letter { background: var(--blue); color: var(--lime); border-color: var(--blue); box-shadow: 0 0 10px rgba(15,158,213,0.4); }
+  .option.correct  .option-letter { background: #5bbf8a; color: #fff; border-color: #5bbf8a; }
+  .option.wrong    .option-letter { background: #d06060; color: #fff; border-color: #d06060; }
+  .option.reveal-correct .option-letter { background: #5bbf8a; color: #fff; border-color: #5bbf8a; }
+  .option-text { font-size: 1rem; line-height: 1.4; font-family: 'Crimson Text', serif; }
+
+  /* FEEDBACK */
+  .feedback { padding: 13px 16px; border-radius: 3px; font-size: 0.95rem; font-family: 'IM Fell English', serif; font-style: italic; line-height: 1.55; margin-bottom: 18px; display: none; border-left: 3px solid transparent; }
+  .feedback.correct { background: rgba(91,191,138,0.08); border-color: #5bbf8a; color: #9de0bc; display: block; }
+  .feedback.wrong   { background: rgba(208,96,96,0.07); border-color: #d06060; color: #e09090; display: block; }
+  .q-actions { display: flex; flex-direction: column; gap: 10px; }
+
+  /* SCORE */
+  .score-screen { text-align: center; }
+  .score-circle { width: 148px; height: 148px; border-radius: 50%; border: 2px solid var(--blue); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 26px; background: radial-gradient(circle, rgba(15,158,213,0.1) 0%, rgba(0,0,0,0) 70%); box-shadow: 0 0 40px rgba(15,158,213,0.2), inset 0 0 30px rgba(15,158,213,0.06); animation: popIn 0.55s cubic-bezier(.175,.885,.32,1.275) both; position: relative; }
+  .score-circle::before { content: ''; position: absolute; inset: 8px; border: 1px solid rgba(15,158,213,0.15); border-radius: 50%; }
+  @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .score-pct { font-family: 'Cinzel', serif; font-size: 2.6rem; font-weight: 700; color: var(--lime); line-height: 1; }
+  .score-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 4px; font-family: 'Cinzel', serif; }
+  .score-msg { font-family: 'Cinzel', serif; font-size: 1.3rem; color: var(--lime); margin-bottom: 8px; }
+  .score-sub { color: var(--muted); font-size: 1rem; font-style: italic; margin-bottom: 28px; font-family: 'Crimson Text', serif; }
+  .rank-badge { display: inline-block; background: var(--blue-faint); border: 1px solid var(--border-blue); border-radius: 2px; padding: 7px 20px; font-family: 'Cinzel', serif; font-size: 0.78rem; color: var(--blue); margin-bottom: 28px; letter-spacing: 0.1em; text-transform: uppercase; }
+
+  /* LEADERBOARD */
+  .leaderboard { margin-top: 20px; }
+  .lb-title { font-family: 'Cinzel', serif; font-size: 0.85rem; color: var(--lime); text-align: center; margin-bottom: 14px; letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.7; }
+  .lb-separator { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+  .lb-separator-line { flex: 1; height: 1px; background: var(--border-lime); }
+  .lb-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 3px; border: 1px solid transparent; margin-bottom: 7px; transition: all 0.2s; background: rgba(250,255,191,0.01); }
+  .lb-item.me { border-color: var(--border-blue); background: var(--blue-faint); box-shadow: 0 0 16px rgba(15,158,213,0.07); }
+  .lb-rank { width: 26px; text-align: center; font-weight: 700; font-size: 0.82rem; color: var(--muted); font-family: 'Cinzel', serif; }
+  .lb-rank.top1 { color: #ffd966; font-size: 1rem; }
+  .lb-rank.top2 { color: #c8c8c8; }
+  .lb-rank.top3 { color: #c89060; }
+  .lb-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--blue-faint); border: 1px solid var(--border-blue); display: flex; align-items: center; justify-content: center; font-family: 'Cinzel', serif; font-size: 0.8rem; font-weight: 700; color: var(--blue); flex-shrink: 0; }
+  .lb-name { flex: 1; font-size: 0.95rem; font-family: 'Crimson Text', serif; }
+  .lb-score-bar-wrap { width: 90px; display: flex; align-items: center; gap: 7px; }
+  .lb-score-bar { flex: 1; height: 4px; background: rgba(250,255,191,0.05); border-radius: 99px; overflow: hidden; }
+  .lb-score-fill { height: 100%; background: linear-gradient(90deg, var(--blue-dim), var(--blue)); border-radius: 99px; transition: width 1s ease 0.3s; box-shadow: 0 0 6px rgba(15,158,213,0.5); }
+  .lb-score-num { font-size: 0.76rem; color: var(--blue); white-space: nowrap; font-family: 'Cinzel', serif; }
+  .lb-empty { text-align: center; color: var(--muted); font-size: 0.9rem; font-style: italic; padding: 20px; }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 560px) {
+    .card { padding: 24px 18px; }
+    .lb-score-bar-wrap { width: 60px; }
+    .lang-buttons { flex-direction: column; align-items: center; }
+    .btn-lang { width: 100%; max-width: 240px; }
+  }
+</style>
+</head>
+<body>
+<canvas id="confetti-canvas"></canvas>
+<div class="bg-layer"></div>
+
+<div class="wrap">
+  <div class="logo">
+    <div class="heraldic">⚜️</div>
+    <h1 id="logo-title">Quiz · Castelul Peleș</h1>
+    <p id="logo-sub">Cunoaștere & Istorie · Anno Domini 2026</p>
+    <div class="ornament">
+      <div class="ornament-line"></div>
+      <div class="ornament-diamond"></div>
+      <div class="ornament-line"></div>
+    </div>
+  </div>
+
+  <!-- SCREEN: LANGUAGE -->
+  <div id="screen-lang" class="card lang-screen">
+    <h2>Choose your language</h2>
+    <p class="lang-sub">Alegeți limba / Select your language</p>
+    <div class="lang-buttons">
+      <button class="btn-lang" onclick="setLang('ro')">
+        <span class="lang-flag">🇷🇴</span>
+        <span class="lang-name">Română</span>
+        <span class="lang-native">Limbă română</span>
+      </button>
+      <button class="btn-lang" onclick="setLang('en')">
+        <span class="lang-flag">🇬🇧</span>
+        <span class="lang-name">English</span>
+        <span class="lang-native">English language</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- SCREEN: NAME -->
+  <div id="screen-name" class="card name-screen hidden">
+    <h2 id="name-title"></h2>
+    <p id="name-desc"></p>
+    <div class="input-wrap">
+      <input type="text" id="name-input" maxlength="30" autocomplete="off">
+    </div>
+    <div class="name-error" id="name-error"></div>
+    <button class="btn btn-primary btn-full" id="btn-start" onclick="startQuiz()"></button>
+  </div>
+
+  <!-- SCREEN: QUESTION -->
+  <div id="screen-question" class="card hidden">
+    <div class="progress-bar">
+      <div class="progress-meta">
+        <span id="q-counter"></span>
+        <span id="q-score-live"></span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    </div>
+    <div class="question-num" id="q-num"></div>
+    <div class="question-text" id="q-text"></div>
+    <div class="options" id="q-options"></div>
+    <div class="feedback" id="q-feedback"></div>
+    <div class="q-actions">
+      <button class="btn btn-primary btn-full hidden" id="btn-check" onclick="checkAnswer()"></button>
+      <button class="btn btn-outline btn-full hidden" id="btn-next" onclick="nextQuestion()"></button>
+    </div>
+  </div>
+
+  <!-- SCREEN: SCORE -->
+  <div id="screen-score" class="card hidden score-screen">
+    <div class="score-circle">
+      <div class="score-pct" id="score-pct">0%</div>
+      <div class="score-label" id="score-frac">0/10</div>
+    </div>
+    <div class="score-msg" id="score-msg"></div>
+    <div class="score-sub" id="score-sub"></div>
+    <div class="rank-badge" id="rank-badge"></div>
+    <div class="leaderboard">
+      <div class="lb-separator">
+        <div class="lb-separator-line"></div>
+        <div class="lb-title" id="lb-title"></div>
+        <div class="lb-separator-line"></div>
+      </div>
+      <div id="lb-list"></div>
+    </div>
+    <div style="margin-top:28px">
+      <button class="btn btn-outline btn-full" id="btn-replay" onclick="resetQuiz()"></button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ---- SUPABASE ----
+const SB_URL = 'https://pmkqfmrhyerlputrqjzx.supabase.co/rest/v1';
+const SB_KEY = 'sb_publishable_de2BppEOK4UIEi4nvHoZBQ_zeuL6lkW';
+const SB_HEADERS = { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY };
+
+async function saveResult(name, score, pct, lang) {
+  try {
+    await fetch(`${SB_URL}/results`, {
+      method: 'POST',
+      headers: { ...SB_HEADERS, 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ name, score, pct, lang })
+    });
+  } catch(e) { console.warn('Supabase save error:', e); }
+}
+async function fetchLeaderboard() {
+  try {
+    const res = await fetch(`${SB_URL}/results?select=name,score,pct,created_at&order=pct.desc,created_at.asc&limit=20`, { headers: SB_HEADERS });
+    return await res.json();
+  } catch(e) { return []; }
+}
+
+// ---- TRANSLATIONS ----
+const T = {
+  ro: {
+    logoTitle: 'Quiz · Castelul Peleș',
+    logoSub: 'Cunoaștere & Istorie · Anno Domini 2026',
+    nameTitle: 'Bine ai venit, călătorule!',
+    nameDesc: 'Înainte de a păși în lumea Castelului Peleș, spune-ne cum te cheamă. Rezultatul tău va fi înscris în Cartea Clasamentului.',
+    namePlaceholder: 'Introdu numele tău...',
+    btnStart: '⚔ Începe Quizul',
+    questionWord: 'Întrebarea',
+    outOf: 'din',
+    correctWord: 'corecte',
+    btnCheck: '✦ Verifică răspunsul',
+    btnNext: 'Înainte ›',
+    btnLast: 'Scorul final ›',
+    feedbackCorrect: '✦ Corect! ',
+    feedbackWrong: '✗ Răspuns greșit. ',
+    quizDone: 'Quiz finalizat!',
+    saving: '⚜ Se salvează rezultatul...',
+    loading: 'Se încarcă clasamentul...',
+    rankText: r => `⚜ Locul #${r} în Cartea Clasamentului`,
+    rankSaved: '⚜ Rezultat salvat!',
+    lbTitle: '🏆 Clasament',
+    lbEmpty: 'Nu există încă niciun rezultat salvat.',
+    btnReplay: '↩ Joacă din nou',
+    youLabel: '(tu)',
+    msgs: {
+      100: { msg: '🏆 Perfecțiune regală!', sub: 'Ai răspuns corect la toate întrebările. Ești un adevărat cunoscător al Castelului Peleș!' },
+      80:  { msg: '⭐ Excelent!', sub: 'Cunoști foarte bine istoria Castelului Peleș. Bravo!' },
+      60:  { msg: '👍 Bine!', sub: 'Ai obținut un rezultat bun. Mai studiezi puțin și vei fi expert!' },
+      40:  { msg: '📚 Continuă să înveți', sub: 'Ai cunoștințe de bază, dar mai sunt lucruri de descoperit despre Peleș.' },
+      20:  { msg: '🔍 Explorează mai mult', sub: 'Castelul Peleș te așteaptă cu multe secrete nedezvăluite.' },
+      0:   { msg: '🏰 Începător regal', sub: 'Nu-ți face griji – fiecare expert a început de undeva. Recitește prezentarea!' }
+    },
+    errors: { empty: 'Te rugăm să introduci un nume.', short: 'Numele trebuie să aibă cel puțin 2 caractere.', numbers: 'Numele nu poate fi format doar din cifre.', banned: 'Acest nume nu este permis. Te rugăm să alegi altul.' }
+  },
+  en: {
+    logoTitle: 'Quiz · Peleș Castle',
+    logoSub: 'Knowledge & History · Anno Domini 2026',
+    nameTitle: 'Welcome, traveller!',
+    nameDesc: 'Before stepping into the world of Peleș Castle, tell us your name. Your result will be recorded in the Book of Rankings.',
+    namePlaceholder: 'Enter your name...',
+    btnStart: '⚔ Start the Quiz',
+    questionWord: 'Question',
+    outOf: 'of',
+    correctWord: 'correct',
+    btnCheck: '✦ Check answer',
+    btnNext: 'Next ›',
+    btnLast: 'Final score ›',
+    feedbackCorrect: '✦ Correct! ',
+    feedbackWrong: '✗ Wrong answer. ',
+    quizDone: 'Quiz complete!',
+    saving: '⚜ Saving result...',
+    loading: 'Loading leaderboard...',
+    rankText: r => `⚜ Rank #${r} in the Book of Rankings`,
+    rankSaved: '⚜ Result saved!',
+    lbTitle: '🏆 Leaderboard',
+    lbEmpty: 'No results saved yet.',
+    btnReplay: '↩ Play again',
+    youLabel: '(you)',
+    msgs: {
+      100: { msg: '🏆 Royal Perfection!', sub: 'You answered every question correctly. You are a true expert on Peleș Castle!' },
+      80:  { msg: '⭐ Excellent!', sub: 'You know the history of Peleș Castle very well. Well done!' },
+      60:  { msg: '👍 Well done!', sub: "A good result! Study a little more and you'll be an expert." },
+      40:  { msg: '📚 Keep learning', sub: 'You have basic knowledge, but there is still more to discover about Peleș.' },
+      20:  { msg: '🔍 Explore more', sub: 'Peleș Castle awaits you with many secrets yet to be unveiled.' },
+      0:   { msg: '🏰 Royal Beginner', sub: "Don't worry – every expert started somewhere. Read the presentation again!" }
+    },
+    errors: { empty: 'Please enter a name.', short: 'Name must be at least 2 characters.', numbers: 'Name cannot consist of numbers only.', banned: 'This name is not allowed. Please choose another.' }
+  }
+};
+
+// ---- QUESTIONS ----
+const QUESTIONS = {
+  ro: [
+    { q: "În ce an a început construcția Castelului Peleș?", opts: ["1860","1873","1883","1901"], correct: 1, explain: "Construcția a început în 1873, la cererea regelui Carol I." },
+    { q: "Cine a solicitat construirea Castelului Peleș?", opts: ["Regele Mihai I","Regina Maria","Regele Carol I","Regele Ferdinand I"], correct: 2, explain: "Castelul a fost construit la cererea Regelui Carol I al României." },
+    { q: "Castelul Peleș a fost inaugurat în:", opts: ["1875","1880","1883","1890"], correct: 2, explain: "Castelul a fost inaugurat oficial în 1883." },
+    { q: "Castelul Peleș a fost prima clădire din România care a beneficiat de:", opts: ["Gaz metan","Electricitate","Apă curentă caldă","Telefonie"], correct: 1, explain: "Peleș a fost primul castel electrificat din România." },
+    { q: "Câte piese de armură și arme se găsesc în Armeria Castelului Peleș?", opts: ["Peste 1.000","Peste 2.500","Peste 4.000","Peste 6.000"], correct: 2, explain: "Armeria adăpostește peste 4.000 de piese de armuri și arme din Europa și Orient." },
+    { q: "Sala Florentină de la Peleș este decorată în stilul:", opts: ["Baroc german","Renașterii italiene","Luis XIV","Mauro-arab"], correct: 1, explain: "Sala Florentină este decorată în stil Renaștere italiană, cu sculpturi și ornamente bogate." },
+    { q: "Care scriitoare celebră a locuit la Castelul Peleș și semna sub pseudonimul „Carmen Sylva"?", opts: ["Regina Maria","Elisabeth a României","Principesa Ileana","Elena Lupescu"], correct: 1, explain: "Elisabeth a României, soția lui Carol I, era cunoscută sub pseudonimul literar Carmen Sylva." },
+    { q: "Ce tip de facilitate modernă era instalată la Castelul Peleș pe lângă electricitate?", opts: ["Piscină interioară","Tunel secret","Lift (ascensor)","Buncăr subteran"], correct: 2, explain: "Castelul era dotat cu un lift, încălzire centrală și sistem modern de ventilație." },
+    { q: "Unde se află Castelul Peleș?", opts: ["Brașov","Sinaia","Predeal","Busteni"], correct: 1, explain: "Castelul Peleș se găsește în orașul Sinaia, în Munții Bucegi." },
+    { q: "Ce rol are astăzi Castelul Peleș?", opts: ["Reședință prezidențială","Muzeu național","Hotel de lux","Sediu guvernamental"], correct: 1, explain: "Astăzi, Castelul Peleș funcționează ca muzeu național și este vizitat de sute de mii de turiști anual." }
+  ],
+  en: [
+    { q: "In what year did construction of Peleș Castle begin?", opts: ["1860","1873","1883","1901"], correct: 1, explain: "Construction began in 1873, at the request of King Carol I." },
+    { q: "Who ordered the construction of Peleș Castle?", opts: ["King Michael I","Queen Marie","King Carol I","King Ferdinand I"], correct: 2, explain: "The castle was built at the request of King Carol I of Romania." },
+    { q: "Peleș Castle was inaugurated in:", opts: ["1875","1880","1883","1890"], correct: 2, explain: "The castle was officially inaugurated in 1883." },
+    { q: "Peleș Castle was the first building in Romania to have:", opts: ["Natural gas","Electricity","Hot running water","Telephone"], correct: 1, explain: "Peleș was the first electrified castle in Romania." },
+    { q: "How many pieces of armour and weapons are held in the Peleș Castle Armoury?", opts: ["Over 1,000","Over 2,500","Over 4,000","Over 6,000"], correct: 2, explain: "The Armoury houses over 4,000 pieces of armour and weapons from Europe and the Orient." },
+    { q: "The Florentine Hall at Peleș is decorated in the style of:", opts: ["German Baroque","Italian Renaissance","Louis XIV","Moorish-Arab"], correct: 1, explain: "The Florentine Hall is decorated in Italian Renaissance style, with rich sculptures and ornaments." },
+    { q: "Which famous writer lived at Peleș Castle and published under the pseudonym 'Carmen Sylva'?", opts: ["Queen Marie","Elisabeth of Romania","Princess Ileana","Elena Lupescu"], correct: 1, explain: "Elisabeth of Romania, wife of Carol I, was known by the literary pseudonym Carmen Sylva." },
+    { q: "Which modern facility was installed at Peleș Castle in addition to electricity?", opts: ["Indoor swimming pool","Secret tunnel","Elevator (lift)","Underground bunker"], correct: 2, explain: "The castle was equipped with a lift, central heating, and a modern ventilation system." },
+    { q: "Where is Peleș Castle located?", opts: ["Brașov","Sinaia","Predeal","Bușteni"], correct: 1, explain: "Peleș Castle is located in the town of Sinaia, in the Bucegi Mountains." },
+    { q: "What role does Peleș Castle serve today?", opts: ["Presidential residence","National museum","Luxury hotel","Government headquarters"], correct: 1, explain: "Today, Peleș Castle functions as a national museum and is visited by hundreds of thousands of tourists each year." }
+  ]
+};
+
+const BANNED = ['pula','pizda','cur','futu','futut','muie','cacat','rahat','prostituta','curva','idiot','prost','tampita','fraier','fuck','shit','ass','bitch','cunt','dick','pussy','bastard','motherfucker','nigga','faggot','retard','admin','administrator','moderator','bot','robot','system','null','undefined','anonymous','anon'];
+
+function isBanned(name, lang) {
+  const e = T[lang].errors;
+  const n = name.trim().toLowerCase().replace(/\s+/g,'');
+  if (!n) return e.empty;
+  if (n.length < 2) return e.short;
+  if (/^\d+$/.test(n)) return e.numbers;
+  for (const w of BANNED) { if (n.includes(w)) return e.banned; }
+  return null;
+}
+
+// ---- STATE ----
+let lang = 'ro';
+let userName = '', currentQ = 0, selectedOpt = null, answered = false, score = 0;
+const userAnswers = [];
+const roman = ['I','II','III','IV','V','VI','VII','VIII','IX','X'];
+
+// ---- SET LANGUAGE ----
+function setLang(l) {
+  lang = l;
+  const t = T[lang];
+  document.getElementById('logo-title').textContent = t.logoTitle;
+  document.getElementById('logo-sub').textContent = t.logoSub;
+  document.getElementById('name-title').textContent = t.nameTitle;
+  document.getElementById('name-desc').textContent = t.nameDesc;
+  document.getElementById('name-input').placeholder = t.namePlaceholder;
+  document.getElementById('btn-start').textContent = t.btnStart;
+  document.getElementById('lb-title').textContent = t.lbTitle;
+  document.getElementById('btn-replay').textContent = t.btnReplay;
+  show('screen-name');
+}
+
+// ---- NAME ----
+document.getElementById('name-input').addEventListener('keydown', e => { if (e.key === 'Enter') startQuiz(); });
+document.getElementById('name-input').addEventListener('input', () => { document.getElementById('name-error').textContent = ''; });
+
+function startQuiz() {
+  const raw = document.getElementById('name-input').value;
+  const err = isBanned(raw, lang);
+  if (err) { document.getElementById('name-error').textContent = err; return; }
+  userName = raw.trim();
+  currentQ = 0; score = 0; userAnswers.length = 0;
+  show('screen-question');
+  renderQuestion();
+}
+
+// ---- QUESTION ----
+function renderQuestion() {
+  const t = T[lang];
+  const q = QUESTIONS[lang][currentQ];
+  const total = QUESTIONS[lang].length;
+  document.getElementById('q-counter').textContent = `${t.questionWord} ${currentQ+1} ${t.outOf} ${total}`;
+  document.getElementById('q-score-live').textContent = `${score} ${t.correctWord}`;
+  document.getElementById('progress-fill').style.width = ((currentQ/total)*100) + '%';
+  document.getElementById('q-num').textContent = `${t.questionWord} ${roman[currentQ]||currentQ+1}`;
+  document.getElementById('q-text').textContent = q.q;
+  selectedOpt = null; answered = false;
+  document.getElementById('q-feedback').className = 'feedback';
+  document.getElementById('q-feedback').textContent = '';
+  document.getElementById('btn-check').textContent = t.btnCheck;
+  hide('btn-check'); hide('btn-next');
+  document.getElementById('btn-check').disabled = true;
+
+  const container = document.getElementById('q-options');
+  container.innerHTML = '';
+  ['A','B','C','D'].forEach((letter, i) => {
+    const el = document.createElement('div');
+    el.className = 'option';
+    el.innerHTML = `<div class="option-letter">${letter}</div><div class="option-text">${q.opts[i]}</div>`;
+    el.addEventListener('click', () => selectOption(i));
+    container.appendChild(el);
+  });
+
+  const card = document.getElementById('screen-question');
+  card.style.animation = 'none'; card.offsetHeight; card.style.animation = 'fadeUp 0.35s ease both';
+}
+
+function selectOption(i) {
+  if (answered) return;
+  selectedOpt = i;
+  document.querySelectorAll('.option').forEach((el, idx) => el.classList.toggle('selected', idx === i));
+  document.getElementById('btn-check').disabled = false;
+  show('btn-check');
+}
+
+function checkAnswer() {
+  if (selectedOpt === null || answered) return;
+  answered = true;
+  const t = T[lang];
+  const q = QUESTIONS[lang][currentQ];
+  const opts = document.querySelectorAll('.option');
+  opts.forEach(el => el.classList.add('locked'));
+  const correct = selectedOpt === q.correct;
+  if (correct) score++;
+  userAnswers.push({ q: currentQ, selected: selectedOpt, correct });
+  opts[selectedOpt].classList.remove('selected');
+  opts[selectedOpt].classList.add(correct ? 'correct' : 'wrong');
+  if (!correct) opts[q.correct].classList.add('reveal-correct');
+  const fb = document.getElementById('q-feedback');
+  fb.textContent = (correct ? t.feedbackCorrect : t.feedbackWrong) + q.explain;
+  fb.className = 'feedback ' + (correct ? 'correct' : 'wrong');
+  hide('btn-check');
+  document.getElementById('q-score-live').textContent = `${score} ${t.correctWord}`;
+  const isLast = currentQ === QUESTIONS[lang].length - 1;
+  document.getElementById('btn-next').textContent = isLast ? t.btnLast : t.btnNext;
+  show('btn-next');
+}
+
+function nextQuestion() {
+  currentQ++;
+  if (currentQ >= QUESTIONS[lang].length) showScore();
+  else renderQuestion();
+}
+
+// ---- SCORE ----
+async function showScore() {
+  const t = T[lang];
+  const total = QUESTIONS[lang].length;
+  const pct = Math.round((score / total) * 100);
+  show('screen-score');
+  let n = 0;
+  const pctEl = document.getElementById('score-pct');
+  const iv = setInterval(() => { n = Math.min(n+2, pct); pctEl.textContent = n+'%'; if (n>=pct) clearInterval(iv); }, 18);
+  document.getElementById('score-frac').textContent = `${score}/${total}`;
+  document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('q-counter').textContent = t.quizDone;
+  document.getElementById('q-score-live').textContent = `${score}/${total}`;
+  const { msg, sub } = getScoreMsg(pct);
+  document.getElementById('score-msg').textContent = msg;
+  document.getElementById('score-sub').textContent = sub;
+  document.getElementById('rank-badge').textContent = t.saving;
+  document.getElementById('lb-list').innerHTML = `<div class="lb-empty">${t.loading}</div>`;
+  await saveResult(userName, score, pct, lang);
+  const lb = await fetchLeaderboard();
+  renderLeaderboard(lb, userName);
+  const rank = lb.findIndex(e => e.name === userName && e.pct === pct) + 1;
+  document.getElementById('rank-badge').textContent = rank > 0 ? t.rankText(rank) : t.rankSaved;
+  if (pct >= 30) launchConfetti(pct);
+}
+
+function getScoreMsg(pct) {
+  const m = T[lang].msgs;
+  if (pct===100) return m[100]; if (pct>=80) return m[80]; if (pct>=60) return m[60];
+  if (pct>=40) return m[40]; if (pct>=20) return m[20]; return m[0];
+}
+
+// ---- LEADERBOARD ----
+function renderLeaderboard(lb, me) {
+  const t = T[lang];
+  const container = document.getElementById('lb-list');
+  if (!lb.length) { container.innerHTML = `<div class="lb-empty">${t.lbEmpty}</div>`; return; }
+  const medals = ['🥇','🥈','🥉'];
+  container.innerHTML = lb.map((entry, i) => {
+    const isMe = entry.name === me;
+    const rankDisp = i < 3 ? medals[i] : `#${i+1}`;
+    const rankClass = i===0?'top1':i===1?'top2':i===2?'top3':'';
+    return `<div class="lb-item ${isMe?'me':''}">
+      <div class="lb-rank ${rankClass}">${rankDisp}</div>
+      <div class="lb-avatar">${entry.name.charAt(0).toUpperCase()}</div>
+      <div class="lb-name">${escHtml(entry.name)}${isMe?` <span style="color:var(--blue);font-size:0.75rem">${t.youLabel}</span>`:''}</div>
+      <div class="lb-score-bar-wrap">
+        <div class="lb-score-bar"><div class="lb-score-fill" style="width:0%" data-w="${entry.pct}%"></div></div>
+        <div class="lb-score-num">${entry.pct}%</div>
+      </div>
+    </div>`;
+  }).join('');
+  setTimeout(() => { container.querySelectorAll('.lb-score-fill').forEach(el => { el.style.width = el.dataset.w; }); }, 100);
+}
+
+function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ---- CONFETTI ----
+function launchConfetti(pct) {
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+  const intensity = pct/100, count = Math.floor(30+intensity*150);
+  const colors = ['#faffbf','#0f9ed5','#e8f0a0','#0b7da8','#5bbf8a','#fff','#a8d8ea'];
+  const particles = Array.from({length:count}, () => ({
+    x: Math.random()*canvas.width, y: -20-Math.random()*200,
+    r: 3+Math.random()*5, d: 1.2+Math.random()*2*intensity,
+    color: colors[Math.floor(Math.random()*colors.length)],
+    tiltAngle: Math.random()*Math.PI*2, tiltSpeed: 0.07+Math.random()*0.09,
+    opacity: 0.7+Math.random()*0.3, shape: Math.random()>0.5?'rect':'diamond'
+  }));
+  let frame=0; const maxFrames=260+Math.floor(intensity*100);
+  function draw() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach(p => {
+      ctx.save(); ctx.globalAlpha=p.opacity*Math.min(1,(maxFrames-frame)/60);
+      ctx.fillStyle=p.color; ctx.translate(p.x,p.y); ctx.rotate(p.tiltAngle);
+      if(p.shape==='rect'){ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r*0.45);}
+      else{ctx.beginPath();ctx.moveTo(0,-p.r/2);ctx.lineTo(p.r/2,0);ctx.lineTo(0,p.r/2);ctx.lineTo(-p.r/2,0);ctx.closePath();ctx.fill();}
+      ctx.restore(); p.y+=p.d; p.tiltAngle+=p.tiltSpeed; p.x+=Math.sin(p.tiltAngle)*1.1;
+    });
+    frame++; if(frame<maxFrames) requestAnimationFrame(draw); else ctx.clearRect(0,0,canvas.width,canvas.height);
+  }
+  requestAnimationFrame(draw);
+  window.addEventListener('resize',()=>{canvas.width=window.innerWidth;canvas.height=window.innerHeight;},{once:true});
+}
+
+// ---- RESET ----
+function resetQuiz() {
+  currentQ=0; selectedOpt=null; answered=false; score=0;
+  userAnswers.length=0; userName='';
+  document.getElementById('name-input').value='';
+  document.getElementById('name-error').textContent='';
+  document.getElementById('progress-fill').style.width='0%';
+  document.getElementById('confetti-canvas').getContext('2d').clearRect(0,0,window.innerWidth,window.innerHeight);
+  show('screen-lang');
+}
+
+// ---- HELPERS ----
+const screens = ['screen-lang','screen-name','screen-question','screen-score'];
+function show(id) { if(screens.includes(id)) screens.forEach(s=>document.getElementById(s).classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
+function hide(id) { document.getElementById(id).classList.add('hidden'); }
+</script>
+</body>
+</html>
