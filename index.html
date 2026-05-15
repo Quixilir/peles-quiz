@@ -602,6 +602,12 @@ function resetQuiz() {
 const screens = ['screen-lang','screen-name','screen-question','screen-score'];
 function show(id) { if(screens.includes(id)) screens.forEach(s=>document.getElementById(s).classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
 function hide(id) { document.getElementById(id).classList.add('hidden'); }
+
+window.setLang = setLang;
+window.startQuiz = startQuiz;
+window.checkAnswer = checkAnswer;
+window.nextQuestion = nextQuestion;
+window.resetQuiz = resetQuiz;
 </script>
 </body>
 </html>
