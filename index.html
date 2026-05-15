@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz – Castelul Peleș / Peleș Castle</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --lime: #faffbf;
+    --blue: #0f9ed5;
+    --blue-dim: #0b7da8;
+    --blue-faint: rgba(15,158,213,0.08);
+    --ink: #1a1308;
+    --muted: #8a7a50;
+    --border-lime: rgba(250,255,191,0.2);
+    --border-blue: rgba(15,158,213,0.3);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Crimson Text', Georgia, serif;
+    background: var(--ink); color: var(--lime);
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+
+  .bg-layer {
+    position: fixed; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 70% 50% at 50% -5%, rgba(15,158,213,0.09) 0%, transparent 65%),
+      radial-gradient(ellipse 50% 40% at 90% 100%, rgba(250,255,191,0.05) 0%, transparent 55%),
+      linear-gradient(175deg, #0e0b04 0%, #1a1308 45%, #0f0c06 100%);
+    pointer-events: none;
+  }
+  .bg-layer::before {
+    content: ''; position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='80' height='80' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+    background-size: 80px 80px; opacity: 0.6;
+  }
+  .bg-layer::after {
+    content: ''; position: absolute; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cpath d='M60 10 Q90 10 90 40 Q90 70 60 80 Q30 70 30 40 Q30 10 60 10Z' fill='none' stroke='rgba(250,255,191,0.025)' stroke-width='1'/%3E%3C/svg%3E");
+    background-size: 120px 120px;
+  }
+
+  .wrap {
+    position: relative; z-index: 1;
+    max-width: 600px; width: 100%;
+    padding: 40px 20px;
+    text-align: center;
+    animation: fadeUp 0.5s ease both;
+  }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+
+  .heraldic { font-size: 2.5rem; margin-bottom: 10px; filter: drop-shadow(0 0 16px rgba(15,158,213,0.5)); }
+
+  h1 {
+    font-family: 'Cinzel', serif; font-weight: 700;
+    font-size: clamp(1.5rem, 4vw, 2.2rem);
+    color: var(--lime); letter-spacing: 0.07em; text-transform: uppercase;
+    text-shadow: 0 0 24px rgba(250,255,191,0.2);
+    margin-bottom: 6px;
+  }
+  .subtitle {
+    color: var(--muted); font-style: italic; font-size: 1rem;
+    letter-spacing: 0.06em; margin-bottom: 10px;
+  }
+
+  .ornament { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 0 auto 44px; }
+  .ornament-line { width: 80px; height: 1px; background: linear-gradient(90deg, transparent, var(--blue), transparent); }
+  .ornament-diamond { width: 8px; height: 8px; background: var(--blue); transform: rotate(45deg); box-shadow: 0 0 8px rgba(15,158,213,0.6); }
+
+  .card {
+    background: rgba(15,10,4,0.75);
+    border: 1px solid var(--border-lime);
+    border-radius: 4px;
+    padding: 44px 40px;
+    backdrop-filter: blur(8px);
+    box-shadow: inset 0 0 60px rgba(0,0,0,0.4), 0 4px 40px rgba(0,0,0,0.5);
+    position: relative;
+  }
+  .card::before { content: '✦'; position: absolute; top: 10px; left: 14px; font-size: 0.7rem; color: var(--blue); opacity: 0.7; }
+  .card::after  { content: '✦'; position: absolute; bottom: 10px; right: 14px; font-size: 0.7rem; color: var(--blue); opacity: 0.7; }
+
+  .card h2 {
+    font-family: 'Cinzel', serif; font-size: 1.1rem;
+    color: var(--lime); letter-spacing: 0.1em; text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .card p {
+    color: var(--muted); font-style: italic; font-size: 0.95rem;
+    margin-bottom: 36px;
+  }
+
+  .lang-buttons { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+  a.btn-lang {
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+    padding: 28px 44px; border-radius: 4px;
+    border: 1px solid var(--border-lime);
+    background: rgba(250,255,191,0.03);
+    text-decoration: none; color: var(--lime);
+    font-family: 'Cinzel', serif;
+    min-width: 160px;
+    transition: all 0.22s;
+  }
+  a.btn-lang:hover {
+    border-color: var(--blue);
+    background: var(--blue-faint);
+    box-shadow: 0 0 28px rgba(15,158,213,0.18);
+    transform: translateY(-3px);
+  }
+  .lang-flag { font-size: 2.4rem; line-height: 1; }
+  .lang-name { font-size: 0.9rem; letter-spacing: 0.12em; text-transform: uppercase; }
+  .lang-native { font-size: 0.78rem; color: var(--muted); font-style: italic; font-family: 'Crimson Text', serif; text-transform: none; letter-spacing: 0; }
+
+  @media (max-width: 480px) {
+    .card { padding: 32px 22px; }
+    .lang-buttons { flex-direction: column; align-items: center; }
+    a.btn-lang { width: 100%; max-width: 260px; padding: 22px 32px; }
+  }
+</style>
+</head>
+<body>
+<div class="bg-layer"></div>
+<div class="wrap">
+  <div class="heraldic">⚜️</div>
+  <h1>Castelul Peleș</h1>
+  <p class="subtitle">Anno Domini 2026</p>
+  <div class="ornament">
+    <div class="ornament-line"></div>
+    <div class="ornament-diamond"></div>
+    <div class="ornament-line"></div>
+  </div>
+  <div class="card">
+    <h2>Choose your language</h2>
+    <p>Alegeți limba / Select your language</p>
+    <div class="lang-buttons">
+      <a class="btn-lang" href="ro.html">
+        <span class="lang-flag">🇷🇴</span>
+        <span class="lang-name">Română</span>
+        <span class="lang-native">Limbă română</span>
+      </a>
+      <a class="btn-lang" href="en.html">
+        <span class="lang-flag">🇬🇧</span>
+        <span class="lang-name">English</span>
+        <span class="lang-native">English language</span>
+      </a>
+    </div>
+  </div>
+</div>
+</body>
+</html>

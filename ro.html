@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz – Castelul Peleș</title>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Cinzel:wght@400;600;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --lime: #faffbf; --lime-faint: rgba(250,255,191,0.08);
+    --blue: #0f9ed5; --blue-dim: #0b7da8; --blue-faint: rgba(15,158,213,0.08);
+    --ink: #1a1308; --muted: #8a7a50;
+    --border-lime: rgba(250,255,191,0.2); --border-blue: rgba(15,158,213,0.3);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Crimson Text', Georgia, serif; background: var(--ink); color: var(--lime); min-height: 100vh; overflow-x: hidden; }
+
+  .bg-layer { position: fixed; inset: 0; z-index: 0; background: radial-gradient(ellipse 70% 50% at 50% -5%, rgba(15,158,213,0.09) 0%, transparent 65%), radial-gradient(ellipse 50% 40% at 90% 100%, rgba(250,255,191,0.05) 0%, transparent 55%), linear-gradient(175deg, #0e0b04 0%, #1a1308 45%, #0f0c06 100%); pointer-events: none; }
+  .bg-layer::before { content: ''; position: absolute; inset: 0; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='80' height='80' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E"); background-size: 80px 80px; opacity: 0.6; }
+  .bg-layer::after { content: ''; position: absolute; inset: 0; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cpath d='M60 10 Q90 10 90 40 Q90 70 60 80 Q30 70 30 40 Q30 10 60 10Z' fill='none' stroke='rgba(250,255,191,0.025)' stroke-width='1'/%3E%3C/svg%3E"); background-size: 120px 120px; }
+
+  #confetti-canvas { position: fixed; inset: 0; z-index: 100; pointer-events: none; }
+
+  .wrap { position: relative; z-index: 1; max-width: 740px; margin: 0 auto; padding: 36px 20px 80px; }
+
+  .logo { text-align: center; margin-bottom: 44px; }
+  .heraldic { font-size: 2rem; line-height: 1; margin-bottom: 6px; filter: drop-shadow(0 0 12px rgba(15,158,213,0.4)); }
+  .logo h1 { font-family: 'Cinzel', serif; font-weight: 700; font-size: clamp(1.4rem, 3.8vw, 2.1rem); color: var(--lime); letter-spacing: 0.07em; text-transform: uppercase; text-shadow: 0 0 24px rgba(250,255,191,0.25); }
+  .logo p { color: var(--muted); font-style: italic; font-size: 0.95rem; letter-spacing: 0.08em; margin-top: 4px; }
+  .ornament { display: flex; align-items: center; justify-content: center; gap: 10px; margin: 14px auto 0; }
+  .ornament-line { width: 70px; height: 1px; background: linear-gradient(90deg, transparent, var(--blue), transparent); }
+  .ornament-diamond { width: 8px; height: 8px; background: var(--blue); transform: rotate(45deg); box-shadow: 0 0 8px rgba(15,158,213,0.6); }
+
+  .back-link { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-family: 'Cinzel', serif; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; text-decoration: none; margin-bottom: 28px; transition: color 0.2s; }
+  .back-link:hover { color: var(--blue); }
+
+  .card { background: rgba(15,10,4,0.7); border: 1px solid var(--border-lime); border-radius: 4px; padding: 38px 36px; position: relative; backdrop-filter: blur(6px); animation: fadeUp 0.45s ease both; box-shadow: inset 0 0 60px rgba(0,0,0,0.4), 0 0 0 1px rgba(250,255,191,0.04), 0 4px 40px rgba(0,0,0,0.5); }
+  .card::before { content: '✦'; position: absolute; top: 10px; left: 14px; font-size: 0.7rem; color: var(--blue); opacity: 0.7; }
+  .card::after  { content: '✦'; position: absolute; bottom: 10px; right: 14px; font-size: 0.7rem; color: var(--blue); opacity: 0.7; }
+  @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
+
+  .name-screen h2 { font-family: 'Cinzel', serif; font-size: 1.45rem; color: var(--lime); margin-bottom: 10px; letter-spacing: 0.05em; }
+  .name-screen p { color: var(--muted); font-size: 1rem; font-style: italic; margin-bottom: 28px; line-height: 1.65; }
+  .input-wrap { margin-bottom: 10px; }
+  .input-wrap input { width: 100%; background: rgba(250,255,191,0.04); border: 1px solid var(--border-lime); border-radius: 3px; padding: 13px 18px; font-family: 'Crimson Text', serif; font-size: 1.05rem; color: var(--lime); outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+  .input-wrap input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-faint); }
+  .input-wrap input::placeholder { color: var(--muted); font-style: italic; }
+  .name-error { color: #e08080; font-size: 0.88rem; font-style: italic; min-height: 20px; margin-bottom: 14px; }
+
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-family: 'Cinzel', serif; font-weight: 600; font-size: 0.82rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 13px 28px; border-radius: 3px; cursor: pointer; border: none; transition: all 0.2s; }
+  .btn-primary { background: linear-gradient(135deg, var(--blue-dim), var(--blue)); color: var(--lime); box-shadow: 0 0 20px rgba(15,158,213,0.25), inset 0 1px 0 rgba(255,255,255,0.1); }
+  .btn-primary:hover { filter: brightness(1.12); transform: translateY(-1px); }
+  .btn-primary:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+  .btn-outline { background: transparent; border: 1px solid var(--border-blue); color: var(--blue); }
+  .btn-outline:hover { background: var(--blue-faint); border-color: var(--blue); }
+  .btn-full { width: 100%; }
+
+  .progress-bar { margin-bottom: 30px; }
+  .progress-meta { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--muted); font-family: 'Cinzel', serif; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; }
+  .progress-track { width: 100%; height: 3px; background: rgba(250,255,191,0.06); border-radius: 99px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--blue-dim), var(--blue), rgba(250,255,191,0.8)); border-radius: 99px; transition: width 0.5s cubic-bezier(.4,0,.2,1); box-shadow: 0 0 8px rgba(15,158,213,0.5); }
+
+  .question-num { font-family: 'Cinzel', serif; font-size: 0.72rem; color: var(--blue); text-transform: uppercase; letter-spacing: 0.16em; margin-bottom: 12px; }
+  .question-text { font-family: 'IM Fell English', Georgia, serif; font-size: clamp(1.1rem, 2.4vw, 1.3rem); line-height: 1.6; margin-bottom: 26px; color: var(--lime); }
+
+  .options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+  .option { display: flex; align-items: center; gap: 14px; padding: 13px 16px; border-radius: 3px; border: 1px solid rgba(250,255,191,0.12); background: rgba(250,255,191,0.02); cursor: pointer; transition: all 0.18s; user-select: none; }
+  .option:hover:not(.locked) { border-color: var(--blue); background: var(--blue-faint); }
+  .option.selected { border-color: var(--blue); background: var(--blue-faint); }
+  .option.correct  { border-color: #5bbf8a; background: rgba(91,191,138,0.1); }
+  .option.wrong    { border-color: #d06060; background: rgba(208,96,96,0.09); }
+  .option.reveal-correct { border-color: #5bbf8a; background: rgba(91,191,138,0.08); }
+  .option.locked { cursor: default; }
+  .option-letter { width: 30px; height: 30px; flex-shrink: 0; border-radius: 2px; border: 1px solid rgba(250,255,191,0.18); display: flex; align-items: center; justify-content: center; font-family: 'Cinzel', serif; font-weight: 700; font-size: 0.75rem; color: var(--lime); transition: all 0.18s; }
+  .option.selected .option-letter { background: var(--blue); border-color: var(--blue); box-shadow: 0 0 10px rgba(15,158,213,0.4); }
+  .option.correct  .option-letter { background: #5bbf8a; color: #fff; border-color: #5bbf8a; }
+  .option.wrong    .option-letter { background: #d06060; color: #fff; border-color: #d06060; }
+  .option.reveal-correct .option-letter { background: #5bbf8a; color: #fff; border-color: #5bbf8a; }
+  .option-text { font-size: 1rem; line-height: 1.4; }
+
+  .feedback { padding: 13px 16px; border-radius: 3px; font-size: 0.95rem; font-family: 'IM Fell English', serif; font-style: italic; line-height: 1.55; margin-bottom: 18px; display: none; border-left: 3px solid transparent; }
+  .feedback.correct { background: rgba(91,191,138,0.08); border-color: #5bbf8a; color: #9de0bc; display: block; }
+  .feedback.wrong   { background: rgba(208,96,96,0.07); border-color: #d06060; color: #e09090; display: block; }
+  .q-actions { display: flex; flex-direction: column; gap: 10px; }
+
+  .score-screen { text-align: center; }
+  .score-circle { width: 148px; height: 148px; border-radius: 50%; border: 2px solid var(--blue); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 26px; background: radial-gradient(circle, rgba(15,158,213,0.1) 0%, transparent 70%); box-shadow: 0 0 40px rgba(15,158,213,0.2); animation: popIn 0.55s cubic-bezier(.175,.885,.32,1.275) both; position: relative; }
+  .score-circle::before { content: ''; position: absolute; inset: 8px; border: 1px solid rgba(15,158,213,0.15); border-radius: 50%; }
+  @keyframes popIn { from { transform:scale(0.5); opacity:0; } to { transform:scale(1); opacity:1; } }
+  .score-pct { font-family: 'Cinzel', serif; font-size: 2.6rem; font-weight: 700; color: var(--lime); line-height: 1; }
+  .score-label { font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 4px; font-family: 'Cinzel', serif; }
+  .score-msg { font-family: 'Cinzel', serif; font-size: 1.3rem; color: var(--lime); margin-bottom: 8px; }
+  .score-sub { color: var(--muted); font-size: 1rem; font-style: italic; margin-bottom: 28px; }
+  .rank-badge { display: inline-block; background: var(--blue-faint); border: 1px solid var(--border-blue); border-radius: 2px; padding: 7px 20px; font-family: 'Cinzel', serif; font-size: 0.78rem; color: var(--blue); margin-bottom: 28px; letter-spacing: 0.1em; text-transform: uppercase; }
+
+  .leaderboard { margin-top: 20px; }
+  .lb-sep { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+  .lb-sep-line { flex: 1; height: 1px; background: var(--border-lime); }
+  .lb-title { font-family: 'Cinzel', serif; font-size: 0.85rem; color: var(--lime); letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.7; }
+  .lb-item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 3px; border: 1px solid transparent; margin-bottom: 7px; background: rgba(250,255,191,0.01); }
+  .lb-item.me { border-color: var(--border-blue); background: var(--blue-faint); }
+  .lb-rank { width: 26px; text-align: center; font-weight: 700; font-size: 0.82rem; color: var(--muted); font-family: 'Cinzel', serif; }
+  .lb-rank.top1 { color: #ffd966; font-size: 1rem; }
+  .lb-rank.top2 { color: #c8c8c8; }
+  .lb-rank.top3 { color: #c89060; }
+  .lb-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--blue-faint); border: 1px solid var(--border-blue); display: flex; align-items: center; justify-content: center; font-family: 'Cinzel', serif; font-size: 0.8rem; font-weight: 700; color: var(--blue); flex-shrink: 0; }
+  .lb-name { flex: 1; font-size: 0.95rem; }
+  .lb-score-wrap { width: 90px; display: flex; align-items: center; gap: 7px; }
+  .lb-score-bar { flex: 1; height: 4px; background: rgba(250,255,191,0.05); border-radius: 99px; overflow: hidden; }
+  .lb-score-fill { height: 100%; background: linear-gradient(90deg, var(--blue-dim), var(--blue)); border-radius: 99px; transition: width 1s ease 0.3s; }
+  .lb-score-num { font-size: 0.76rem; color: var(--blue); white-space: nowrap; font-family: 'Cinzel', serif; }
+  .lb-empty { text-align: center; color: var(--muted); font-size: 0.9rem; font-style: italic; padding: 20px; }
+
+  .score-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 28px; }
+
+  .hidden { display: none !important; }
+  @media (max-width: 560px) { .card { padding: 24px 18px; } .lb-score-wrap { width: 60px; } }
+</style>
+</head>
+<body>
+<canvas id="confetti-canvas"></canvas>
+<div class="bg-layer"></div>
+<div class="wrap">
+
+  <div class="logo">
+    <div class="heraldic">⚜️</div>
+    <h1>Quiz · Castelul Peleș</h1>
+    <p>Cunoaștere & Istorie · Anno Domini 2026</p>
+    <div class="ornament">
+      <div class="ornament-line"></div><div class="ornament-diamond"></div><div class="ornament-line"></div>
+    </div>
+  </div>
+
+  <!-- NAME -->
+  <div id="screen-name" class="card name-screen">
+    <a class="back-link" href="index.html">← Alege limba</a>
+    <h2>Bine ai venit, călătorule!</h2>
+    <p>Înainte de a păși în lumea Castelului Peleș, spune-ne cum te cheamă. Rezultatul tău va fi înscris în Cartea Clasamentului.</p>
+    <div class="input-wrap">
+      <input type="text" id="name-input" placeholder="Introdu numele tău..." maxlength="30" autocomplete="off">
+    </div>
+    <div class="name-error" id="name-error"></div>
+    <button class="btn btn-primary btn-full" id="btn-start">⚔ Începe Quizul</button>
+  </div>
+
+  <!-- QUESTION -->
+  <div id="screen-question" class="card hidden">
+    <div class="progress-bar">
+      <div class="progress-meta">
+        <span id="q-counter">Întrebarea 1 din 10</span>
+        <span id="q-score-live">0 corecte</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    </div>
+    <div class="question-num" id="q-num">Întrebarea I</div>
+    <div class="question-text" id="q-text"></div>
+    <div class="options" id="q-options"></div>
+    <div class="feedback" id="q-feedback"></div>
+    <div class="q-actions">
+      <button class="btn btn-primary btn-full hidden" id="btn-check">✦ Verifică răspunsul</button>
+      <button class="btn btn-outline btn-full hidden" id="btn-next">Înainte ›</button>
+    </div>
+  </div>
+
+  <!-- SCORE -->
+  <div id="screen-score" class="card hidden score-screen">
+    <div class="score-circle">
+      <div class="score-pct" id="score-pct">0%</div>
+      <div class="score-label" id="score-frac">0/10</div>
+    </div>
+    <div class="score-msg" id="score-msg"></div>
+    <div class="score-sub" id="score-sub"></div>
+    <div class="rank-badge" id="rank-badge">⚜</div>
+    <div class="leaderboard">
+      <div class="lb-sep">
+        <div class="lb-sep-line"></div>
+        <div class="lb-title">🏆 Clasament</div>
+        <div class="lb-sep-line"></div>
+      </div>
+      <div id="lb-list"></div>
+    </div>
+    <div class="score-actions">
+      <button class="btn btn-primary btn-full" id="btn-replay">↩ Joacă din nou</button>
+      <a class="btn btn-outline btn-full" href="index.html">← Alege limba</a>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const SB_URL = 'https://pmkqfmrhyerlputrqjzx.supabase.co/rest/v1';
+const SB_KEY = 'sb_publishable_de2BppEOK4UIEi4nvHoZBQ_zeuL6lkW';
+const SB_H = { 'Content-Type': 'application/json', 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY };
+
+async function saveResult(name, score, pct) {
+  try {
+    await fetch(SB_URL + '/results', { method: 'POST', headers: { ...SB_H, 'Prefer': 'return=minimal' }, body: JSON.stringify({ name, score, pct, lang: 'ro' }) });
+  } catch(e) {}
+}
+async function fetchLB() {
+  try {
+    const r = await fetch(SB_URL + '/results?select=name,score,pct&order=pct.desc,created_at.asc&limit=20', { headers: SB_H });
+    return await r.json();
+  } catch(e) { return []; }
+}
+
+const QUESTIONS = [
+  { q: 'In ce an a inceput constructia Castelului Peles?', opts: ['1860','1873','1883','1901'], correct: 1, explain: 'Constructia a inceput in 1873, la cererea regelui Carol I.' },
+  { q: 'Cine a solicitat construirea Castelului Peles?', opts: ['Regele Mihai I','Regina Maria','Regele Carol I','Regele Ferdinand I'], correct: 2, explain: 'Castelul a fost construit la cererea Regelui Carol I al Romaniei.' },
+  { q: 'Castelul Peles a fost inaugurat in:', opts: ['1875','1880','1883','1890'], correct: 2, explain: 'Castelul a fost inaugurat oficial in 1883.' },
+  { q: 'Castelul Peles a fost prima cladire din Romania care a beneficiat de:', opts: ['Gaz metan','Electricitate','Apa curenta calda','Telefonie'], correct: 1, explain: 'Peles a fost primul castel electrificat din Romania.' },
+  { q: 'Cate piese de armura si arme se gasesc in Armeria Castelului Peles?', opts: ['Peste 1.000','Peste 2.500','Peste 4.000','Peste 6.000'], correct: 2, explain: 'Armeria adaposteste peste 4.000 de piese de armuri si arme din Europa si Orient.' },
+  { q: 'Sala Florentina de la Peles este decorata in stilul:', opts: ['Baroc german','Renasterii italiene','Luis XIV','Mauro-arab'], correct: 1, explain: 'Sala Florentina este decorata in stil Renastere italiana, cu sculpturi si ornamente bogate.' },
+  { q: 'Care scriitoare celebra a locuit la Castelul Peles si semna sub pseudonimul Carmen Sylva?', opts: ['Regina Maria','Elisabeth a Romaniei','Principesa Ileana','Elena Lupescu'], correct: 1, explain: 'Elisabeth a Romaniei, sotia lui Carol I, era cunoscuta sub pseudonimul literar Carmen Sylva.' },
+  { q: 'Ce tip de facilitate moderna era instalata la Castelul Peles pe langa electricitate?', opts: ['Piscina interioara','Tunel secret','Lift (ascensor)','Buncar subteran'], correct: 2, explain: 'Castelul era dotat cu un lift, incalzire centrala si sistem modern de ventilatie.' },
+  { q: 'Unde se afla Castelul Peles?', opts: ['Brasov','Sinaia','Predeal','Busteni'], correct: 1, explain: 'Castelul Peles se gaseste in orasul Sinaia, in Muntii Bucegi.' },
+  { q: 'Ce rol are astazi Castelul Peles?', opts: ['Resedinta prezidentiala','Muzeu national','Hotel de lux','Sediu guvernamental'], correct: 1, explain: 'Astazi, Castelul Peles functioneaza ca muzeu national si este vizitat de sute de mii de turisti anual.' }
+];
+
+const BANNED = ['pula','pizda','cur','futu','futut','muie','cacat','rahat','prostituta','curva','idiot','prost','tampita','fraier','fuck','shit','ass','bitch','cunt','dick','pussy','bastard','motherfucker','nigga','faggot','retard','admin','administrator','moderator','bot','robot','system','null','undefined','anonymous','anon'];
+const roman = ['I','II','III','IV','V','VI','VII','VIII','IX','X'];
+const msgs = [
+  { min: 100, msg: '🏆 Perfectiune regala!', sub: 'Ai raspuns corect la toate intrebarile. Esti un adevarat cunoscator al Castelului Peles!' },
+  { min: 80,  msg: '⭐ Excelent!', sub: 'Cunosti foarte bine istoria Castelului Peles. Bravo!' },
+  { min: 60,  msg: '👍 Bine!', sub: 'Ai obtinut un rezultat bun. Mai studiezi putin si vei fi expert!' },
+  { min: 40,  msg: '📚 Continua sa inveti', sub: 'Ai cunostinte de baza, dar mai sunt lucruri de descoperit despre Peles.' },
+  { min: 20,  msg: '🔍 Exploreaza mai mult', sub: 'Castelul Peles te asteapta cu multe secrete nerevaluite.' },
+  { min: 0,   msg: '🏰 Incepator regal', sub: 'Nu-ti face griji - fiecare expert a inceput de undeva. Reciteste prezentarea!' }
+];
+
+let userName = '', currentQ = 0, selectedOpt = null, answered = false, score = 0;
+
+function isBanned(name) {
+  const n = name.trim().toLowerCase().replace(/\s+/g,'');
+  if (!n) return 'Te rugam sa introduci un nume.';
+  if (n.length < 2) return 'Numele trebuie sa aiba cel putin 2 caractere.';
+  if (/^\d+$/.test(n)) return 'Numele nu poate fi format doar din cifre.';
+  for (const w of BANNED) { if (n.includes(w)) return 'Acest nume nu este permis.'; }
+  return null;
+}
+
+document.getElementById('name-input').addEventListener('keydown', function(e) { if (e.key === 'Enter') startQuiz(); });
+document.getElementById('name-input').addEventListener('input', function() { document.getElementById('name-error').textContent = ''; });
+document.getElementById('btn-start').addEventListener('click', startQuiz);
+document.getElementById('btn-check').addEventListener('click', checkAnswer);
+document.getElementById('btn-next').addEventListener('click', nextQuestion);
+document.getElementById('btn-replay').addEventListener('click', resetQuiz);
+
+function startQuiz() {
+  var raw = document.getElementById('name-input').value;
+  var err = isBanned(raw);
+  if (err) { document.getElementById('name-error').textContent = err; return; }
+  userName = raw.trim();
+  currentQ = 0; score = 0;
+  show('screen-question');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  var q = QUESTIONS[currentQ];
+  var total = QUESTIONS.length;
+  document.getElementById('q-counter').textContent = 'Intrebarea ' + (currentQ+1) + ' din ' + total;
+  document.getElementById('q-score-live').textContent = score + ' corecte';
+  document.getElementById('progress-fill').style.width = ((currentQ/total)*100) + '%';
+  document.getElementById('q-num').textContent = 'Intrebarea ' + roman[currentQ];
+  document.getElementById('q-text').textContent = q.q;
+  selectedOpt = null; answered = false;
+  document.getElementById('q-feedback').className = 'feedback';
+  document.getElementById('q-feedback').textContent = '';
+  document.getElementById('btn-check').disabled = true;
+  hide('btn-check'); hide('btn-next');
+
+  var container = document.getElementById('q-options');
+  container.innerHTML = '';
+  ['A','B','C','D'].forEach(function(letter, i) {
+    var el = document.createElement('div');
+    el.className = 'option';
+    el.innerHTML = '<div class="option-letter">' + letter + '</div><div class="option-text">' + q.opts[i] + '</div>';
+    el.addEventListener('click', function() { selectOption(i); });
+    container.appendChild(el);
+  });
+
+  var card = document.getElementById('screen-question');
+  card.style.animation = 'none'; card.offsetHeight; card.style.animation = 'fadeUp 0.35s ease both';
+}
+
+function selectOption(i) {
+  if (answered) return;
+  selectedOpt = i;
+  document.querySelectorAll('.option').forEach(function(el, idx) { el.classList.toggle('selected', idx === i); });
+  document.getElementById('btn-check').disabled = false;
+  show('btn-check');
+}
+
+function checkAnswer() {
+  if (selectedOpt === null || answered) return;
+  answered = true;
+  var q = QUESTIONS[currentQ];
+  var opts = document.querySelectorAll('.option');
+  opts.forEach(function(el) { el.classList.add('locked'); });
+  var correct = selectedOpt === q.correct;
+  if (correct) score++;
+  opts[selectedOpt].classList.remove('selected');
+  opts[selectedOpt].classList.add(correct ? 'correct' : 'wrong');
+  if (!correct) opts[q.correct].classList.add('reveal-correct');
+  var fb = document.getElementById('q-feedback');
+  fb.textContent = (correct ? '✦ Corect! ' : '✗ Raspuns gresit. ') + q.explain;
+  fb.className = 'feedback ' + (correct ? 'correct' : 'wrong');
+  hide('btn-check');
+  document.getElementById('q-score-live').textContent = score + ' corecte';
+  document.getElementById('btn-next').textContent = currentQ === QUESTIONS.length - 1 ? 'Scorul final ›' : 'Inainte ›';
+  show('btn-next');
+}
+
+function nextQuestion() {
+  currentQ++;
+  if (currentQ >= QUESTIONS.length) showScore();
+  else renderQuestion();
+}
+
+async function showScore() {
+  var total = QUESTIONS.length;
+  var pct = Math.round((score / total) * 100);
+  show('screen-score');
+  var pctEl = document.getElementById('score-pct');
+  var n = 0;
+  var iv = setInterval(function() { n = Math.min(n+2, pct); pctEl.textContent = n+'%'; if (n>=pct) clearInterval(iv); }, 18);
+  document.getElementById('score-frac').textContent = score + '/' + total;
+  document.getElementById('progress-fill').style.width = '100%';
+  var m = msgs.find(function(x) { return pct >= x.min; }) || msgs[msgs.length-1];
+  document.getElementById('score-msg').textContent = m.msg;
+  document.getElementById('score-sub').textContent = m.sub;
+  document.getElementById('rank-badge').textContent = '⚜ Se salveaza...';
+  document.getElementById('lb-list').innerHTML = '<div class="lb-empty">Se incarca clasamentul...</div>';
+  await saveResult(userName, score, pct);
+  var lb = await fetchLB();
+  renderLB(lb);
+  var rank = lb.findIndex(function(e) { return e.name === userName && e.pct === pct; }) + 1;
+  document.getElementById('rank-badge').textContent = rank > 0 ? '⚜ Locul #' + rank + ' in Clasament' : '⚜ Rezultat salvat!';
+  if (pct >= 30) launchConfetti(pct);
+}
+
+function renderLB(lb) {
+  var container = document.getElementById('lb-list');
+  if (!lb.length) { container.innerHTML = '<div class="lb-empty">Nu exista inca niciun rezultat.</div>'; return; }
+  var medals = ['🥇','🥈','🥉'];
+  container.innerHTML = lb.map(function(entry, i) {
+    var isMe = entry.name === userName;
+    var rankDisp = i < 3 ? medals[i] : '#'+(i+1);
+    var rankClass = i===0?'top1':i===1?'top2':i===2?'top3':'';
+    return '<div class="lb-item' + (isMe?' me':'') + '">' +
+      '<div class="lb-rank ' + rankClass + '">' + rankDisp + '</div>' +
+      '<div class="lb-avatar">' + entry.name.charAt(0).toUpperCase() + '</div>' +
+      '<div class="lb-name">' + esc(entry.name) + (isMe ? ' <span style="color:var(--blue);font-size:0.75rem">(tu)</span>' : '') + '</div>' +
+      '<div class="lb-score-wrap"><div class="lb-score-bar"><div class="lb-score-fill" style="width:0%" data-w="' + entry.pct + '%"></div></div>' +
+      '<div class="lb-score-num">' + entry.pct + '%</div></div></div>';
+  }).join('');
+  setTimeout(function() { document.querySelectorAll('.lb-score-fill').forEach(function(el) { el.style.width = el.dataset.w; }); }, 100);
+}
+
+function esc(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function resetQuiz() {
+  currentQ = 0; score = 0; selectedOpt = null; answered = false; userName = '';
+  document.getElementById('name-input').value = '';
+  document.getElementById('name-error').textContent = '';
+  document.getElementById('progress-fill').style.width = '0%';
+  document.getElementById('confetti-canvas').getContext('2d').clearRect(0,0,9999,9999);
+  show('screen-name');
+}
+
+function launchConfetti(pct) {
+  var canvas = document.getElementById('confetti-canvas');
+  var ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+  var intensity = pct/100, count = Math.floor(30+intensity*150);
+  var colors = ['#faffbf','#0f9ed5','#e8f0a0','#0b7da8','#5bbf8a','#fff'];
+  var particles = Array.from({length:count}, function() { return { x:Math.random()*canvas.width, y:-20-Math.random()*200, r:3+Math.random()*5, d:1.2+Math.random()*2*intensity, color:colors[Math.floor(Math.random()*colors.length)], tiltAngle:Math.random()*Math.PI*2, tiltSpeed:0.07+Math.random()*0.09, opacity:0.7+Math.random()*0.3 }; });
+  var frame=0, maxFrames=260+Math.floor(intensity*100);
+  function draw() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    particles.forEach(function(p) { ctx.save(); ctx.globalAlpha=p.opacity*Math.min(1,(maxFrames-frame)/60); ctx.fillStyle=p.color; ctx.translate(p.x,p.y); ctx.rotate(p.tiltAngle); ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r*0.45); ctx.restore(); p.y+=p.d; p.tiltAngle+=p.tiltSpeed; p.x+=Math.sin(p.tiltAngle)*1.1; });
+    frame++; if(frame<maxFrames) requestAnimationFrame(draw); else ctx.clearRect(0,0,canvas.width,canvas.height);
+  }
+  requestAnimationFrame(draw);
+}
+
+var screens = ['screen-name','screen-question','screen-score'];
+function show(id) { if(screens.includes(id)) screens.forEach(function(s){document.getElementById(s).classList.add('hidden');}); document.getElementById(id).classList.remove('hidden'); }
+function hide(id) { document.getElementById(id).classList.add('hidden'); }
+</script>
+</body>
+</html>
