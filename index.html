@@ -197,12 +197,12 @@
     <h2>Choose your language</h2>
     <p class="lang-sub">Alegeți limba / Select your language</p>
     <div class="lang-buttons">
-      <button class="btn-lang" onclick="setLang('ro')">
+      <button class="btn-lang" id="btn-lang-ro">
         <span class="lang-flag">🇷🇴</span>
         <span class="lang-name">Română</span>
         <span class="lang-native">Limbă română</span>
       </button>
-      <button class="btn-lang" onclick="setLang('en')">
+      <button class="btn-lang" id="btn-lang-en">
         <span class="lang-flag">🇬🇧</span>
         <span class="lang-name">English</span>
         <span class="lang-native">English language</span>
@@ -218,7 +218,7 @@
       <input type="text" id="name-input" maxlength="30" autocomplete="off">
     </div>
     <div class="name-error" id="name-error"></div>
-    <button class="btn btn-primary btn-full" id="btn-start" onclick="startQuiz()"></button>
+    <button class="btn btn-primary btn-full" id="btn-start"></button>
   </div>
 
   <!-- SCREEN: QUESTION -->
@@ -235,8 +235,8 @@
     <div class="options" id="q-options"></div>
     <div class="feedback" id="q-feedback"></div>
     <div class="q-actions">
-      <button class="btn btn-primary btn-full hidden" id="btn-check" onclick="checkAnswer()"></button>
-      <button class="btn btn-outline btn-full hidden" id="btn-next" onclick="nextQuestion()"></button>
+      <button class="btn btn-primary btn-full hidden" id="btn-check"></button>
+      <button class="btn btn-outline btn-full hidden" id="btn-next"></button>
     </div>
   </div>
 
@@ -258,7 +258,7 @@
       <div id="lb-list"></div>
     </div>
     <div style="margin-top:28px">
-      <button class="btn btn-outline btn-full" id="btn-replay" onclick="resetQuiz()"></button>
+      <button class="btn btn-outline btn-full" id="btn-replay"></button>
     </div>
   </div>
 </div>
@@ -608,6 +608,16 @@ window.startQuiz = startQuiz;
 window.checkAnswer = checkAnswer;
 window.nextQuestion = nextQuestion;
 window.resetQuiz = resetQuiz;
+
+// Attach all event listeners here instead of inline onclick
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('btn-lang-ro').addEventListener('click', function() { setLang('ro'); });
+  document.getElementById('btn-lang-en').addEventListener('click', function() { setLang('en'); });
+  document.getElementById('btn-start').addEventListener('click', startQuiz);
+  document.getElementById('btn-check').addEventListener('click', checkAnswer);
+  document.getElementById('btn-next').addEventListener('click', nextQuestion);
+  document.getElementById('btn-replay').addEventListener('click', resetQuiz);
+});
 </script>
 </body>
 </html>
